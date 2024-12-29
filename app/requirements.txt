@@ -1,0 +1,11 @@
+load_dotenv
+streamlit
+streamlit_option_menu
+streamlit-lottie
+tiktoken
+faiss-cpu
+pinecone
+pinecone-client
+langchain-openai
+langchain-core
+
