@@ -1,5 +1,6 @@
 load_dotenv
 streamlit
+streamlit-chat
 streamlit_option_menu
 streamlit-lottie
 tiktoken

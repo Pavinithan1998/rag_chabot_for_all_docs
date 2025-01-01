@@ -1,46 +1,13 @@
-import os
+
 import fitz  
-import pinecone
 from io import BytesIO
 from docx import Document
-from PyPDF2 import PdfReader
 from pptx import Presentation
-from langchain.vectorstores import Pinecone
 from llm_actions import get_image_description
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings.openai import OpenAIEmbeddings
 
 
-PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-PINECONE_ENV = os.getenv("PINECONE_ENV")
-pinecone_index_name = os.getenv("PINECONE_INDEX")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENV)
-embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-
-def ingest_document(text_content: str):
-    """
-    Ingest the document into the Pinecone vector store by splitting into chunks, vectorizing, and storing.
-    """
-    try:
-        splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        chunks = splitter.split_text(text_content)
-
-        if pinecone_index_name not in pinecone.list_indexes():
-            pinecone.create_index(pinecone_index_name, dimension=1536)  # 1536 is the default for OpenAI embeddings.
-        index = Pinecone(index_name=pinecone_index_name, embedding=embeddings)
-
-        index.add_texts(chunks)
-
-        return "success"
-    except Exception as e:
-        return f"Failed to ingest document into Pinecone: {e}"
-    
-def process_pdf(file_bytes: bytes):
-    """
-    Process PDF file to extract text and image descriptions, integrating them into the text content.
-    """
+def process_pdf(file_bytes: bytes, filename: str):
+    """Process PDF file to extract text and image descriptions, integrating them into the text content."""
     text_content = ""
     pdf_document = fitz.open("pdf", file_bytes)
     
@@ -64,11 +31,13 @@ def process_pdf(file_bytes: bytes):
             
             except Exception as e:
                 text_content += f"\n[Image Extraction Failed: Page {page_num + 1}, Image {img_index + 1}]\nError: {e}\n"
-    status = ingest_document(text_content)
-    # print(text_content)
+    # save the text content to a txt file
+    file_path = f"./docs/{filename}.txt"
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
     return text_content
 
-def process_docx(file_bytes: bytes):
+def process_docx(file_bytes: bytes, filename: str):
     """Process DOCX file using fitz to extract text and image descriptions."""
     text_content = ""
     docx_pdf = fitz.open("docx", file_bytes)
@@ -92,23 +61,23 @@ def process_docx(file_bytes: bytes):
                 text_content += f"\n[Image: {image_filename}]\nDescription: {description}\n"
             except Exception as e:
                 text_content += f"\n[Image Extraction Failed: Page {page_num + 1}, Image {img_index + 1}]\nError: {e}\n"
-    
-    status = ingest_document(text_content)
-    # print(text_content)
+    # save the text content to a txt file
+    file_path = f"./docs/{filename}.txt"
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
     return text_content
 
-def process_txt(file_bytes: bytes):
+def process_txt(file_bytes: bytes, filename: str):
     """Process TXT file to extract plain text and store in Pinecone vector store."""
-    try:
-        text_content = file_bytes.decode("utf-8")
-        
-        status = ingest_document(text_content)
-        return text_content
-    except Exception as e:
-        return f"Failed to process TXT file: {e}"
+    text_content = file_bytes.decode("utf-8")
+    # save the text content to a txt file
+    file_path = f"./docs/{filename}.txt"
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
+    return text_content
 
 
-def process_ppt(file_bytes: bytes):
+def process_ppt(file_bytes: bytes, filename: str):
     """Process PPT file to extract text and image descriptions, integrating them into the text content."""
     text_content = ""
     image_descriptions = {}
@@ -127,7 +96,9 @@ def process_ppt(file_bytes: bytes):
                 image_filename = f"slide_{slide_num + 1}_img_{len(image_descriptions) + 1}.jpg"
                 description = get_image_description(image)
                 image_descriptions[image_filename] = description
-                text_content += f"\n[Image: {image_filename}]\nDescription: {description}\n"
-    
-    status = ingest_document(text_content)
+                text_content += f"\n[Image: {image_filename}]\nDescription: {description}\n"    
+    # save the text content to a txt file
+    file_path = f"./docs/{filename}.txt"
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
     return text_content
