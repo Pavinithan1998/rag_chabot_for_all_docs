@@ -19,6 +19,7 @@ def process_pdf(file_bytes: bytes, filename: str):
         images = page.get_images(full=True)
         for img_index, img in enumerate(images):
             xref = img[0]
+            print(f"Extracting image {img_index + 1} from page {page_num + 1}")
             try:
                 base_image = pdf_document.extract_image(xref)
                 image_bytes = base_image["image"]

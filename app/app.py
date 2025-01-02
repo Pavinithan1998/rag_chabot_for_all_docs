@@ -15,7 +15,7 @@ from process_docs import (
     process_txt,
     process_ppt
 )
-from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
+from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 

@@ -59,7 +59,7 @@ def ingest_documents():
         print(f"Error: {e}")
         return False
     
-from langchain.vectorstores import Pinecone as LangChainPinecone
+from langchain_community.vectorstores import Pinecone as LangChainPinecone
 
 def load_vectorstore():
     """Load vectorstore as a retriever using Pinecone."""
