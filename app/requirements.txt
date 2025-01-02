@@ -1,4 +1,4 @@
-load_dotenv
+python-dotenv
 streamlit
 streamlit-chat
 streamlit_option_menu
@@ -9,4 +9,15 @@ pinecone
 pinecone-client
 langchain-openai
 langchain-core
+langchain-community
+fitz
+langchain
+frontend
+tools
+setuptools
+python-docx 
+python-pptx
+pypdf2
+exception
+pymupdf
 
