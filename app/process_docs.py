@@ -33,6 +33,8 @@ def process_pdf(file_bytes: bytes, filename: str):
             except Exception as e:
                 text_content += f"\n[Image Extraction Failed: Page {page_num + 1}, Image {img_index + 1}]\nError: {e}\n"
     # save the text content to a txt file
+    filename = filename.split(".")[0]
+    print(f"Saving text content to file: {filename}.txt")
     file_path = f"./docs/{filename}.txt"
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text_content)
@@ -63,6 +65,8 @@ def process_docx(file_bytes: bytes, filename: str):
             except Exception as e:
                 text_content += f"\n[Image Extraction Failed: Page {page_num + 1}, Image {img_index + 1}]\nError: {e}\n"
     # save the text content to a txt file
+    filename = filename.split(".")[0]
+    print(f"Saving text content to file: {filename}.txt")
     file_path = f"./docs/{filename}.txt"
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text_content)
@@ -72,6 +76,7 @@ def process_txt(file_bytes: bytes, filename: str):
     """Process TXT file to extract plain text and store in Pinecone vector store."""
     text_content = file_bytes.decode("utf-8")
     # save the text content to a txt file
+    filename = filename.split(".")[0]
     file_path = f"./docs/{filename}.txt"
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text_content)
@@ -99,6 +104,7 @@ def process_ppt(file_bytes: bytes, filename: str):
                 image_descriptions[image_filename] = description
                 text_content += f"\n[Image: {image_filename}]\nDescription: {description}\n"    
     # save the text content to a txt file
+    filename = filename.split(".")[0]
     file_path = f"./docs/{filename}.txt"
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text_content)

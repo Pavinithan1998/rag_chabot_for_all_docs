@@ -20,6 +20,7 @@ if not os.path.exists("docs"):
 def ingest_documents():
     """Ingest documents into local vector store."""
     try:
+        print(f"Attempting to load file: ")
         chunk_size = 1000
         chunk_overlap = 200
         
