@@ -24,7 +24,8 @@ def ingest_documents():
         chunk_size = 1000
         chunk_overlap = 200
         
-        loader = DirectoryLoader('./docs', glob="*.txt", loader_cls=TextLoader)
+        # loader = DirectoryLoader('./docs', glob="*.txt", loader_cls=TextLoader)
+        loader = DirectoryLoader('./docs', glob="*.txt", loader_cls=lambda path: TextLoader(path, encoding="utf-8"))
         docs = loader.load()
         print(f"Loaded {len(docs)} documents.")
 
