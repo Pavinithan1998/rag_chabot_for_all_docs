@@ -17,6 +17,7 @@ from process_docs import (
 )
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_core.messages import HumanMessage, AIMessage
 
 
 load_dotenv()
@@ -80,7 +81,7 @@ class StreamlitCallbackHandler(BaseCallbackHandler):
         self.generated_text += token
         self.response_placeholder.markdown(self.generated_text)
 
-def tab3():
+def tab3(): 
     initialize_session()
     st.header("🗣️ Chat with the AI about the ingested documents! 📚")
     st.markdown(
@@ -88,45 +89,54 @@ def tab3():
         unsafe_allow_html=True,
     )
 
-    if user_input := st.chat_input("User Input"):
+    chat_messages = st.session_state["memory"].chat_memory.messages
+    for message in chat_messages:
+        if isinstance(message, HumanMessage):
+            with st.chat_message("user"):
+                st.markdown(
+                    f'<p style="font-size: 16px; padding: 10px; border-radius: 10px;">{message.content}</p>',
+                    unsafe_allow_html=True,
+                )
+        elif isinstance(message, AIMessage):
+            with st.chat_message("assistant"):
+                st.markdown(
+                    f'<p style="font-size: 16px;">{message.content}</p></div>',
+                    unsafe_allow_html=True,
+                )
+
+    if user_input := st.chat_input("Enter your message"):
         with st.chat_message("user"):
-            st.markdown(user_input)
+            st.markdown(
+                f'<p style="font-size: 16px; padding: 10px; border-radius: 10px;">{user_input}</p>',
+                unsafe_allow_html=True,
+            )
 
         with st.spinner("Generating Response..."):
             with st.chat_message("assistant"):
-                # Placeholder for streaming response
                 response_placeholder = st.empty()
-
-                # Use both StreamingStdOutCallbackHandler and StreamlitCallbackHandler
-                stdout_handler = StreamingStdOutCallbackHandler()
                 streamlit_handler = StreamlitCallbackHandler(response_placeholder)
+                stdout_handler = StreamingStdOutCallbackHandler()
 
                 chain = get_chat_chain(memory=st.session_state["memory"])
+                ai_response = chain({"question": user_input}, callbacks=[stdout_handler, streamlit_handler])
 
-                # Process the response with streaming
-                chain(
-                    {"question": user_input},
-                    callbacks=[stdout_handler, streamlit_handler],  # Combine handlers
+                ai_message_content = ai_response["answer"]
+                response_placeholder.markdown(
+                    f'<p style="font-size: 16px;">{ai_message_content}</p></div>',
+                    unsafe_allow_html=True,
                 )
-                
-
-
-
-    # if st.button(_("Clear Chat History")):
-    #     msgs.clear()
 
 def main():
     st.set_page_config(page_title="DocuBot", page_icon="📚", layout="wide")
     
-    # Sidebar menu
     with st.sidebar:
         app_mode = option_menu(
-            menu_title="Choose a page",  # Required
-            options=["Home", "Upload & Manage", "Chat with DocuBot"],  # Required
-            icons=["house", "upload", "chat"],  # Optional (Streamlit has an icon set)
-            menu_icon="cast",  # Optional
-            default_index=0,  # Optional
-            orientation="vertical"  # Menu orientation
+            menu_title="Choose a page",  
+            options=["Home", "Upload & Manage", "Chat with DocuBot"],  
+            icons=["house", "upload", "chat"],  
+            menu_icon="cast",  
+            default_index=0,  
+            orientation="vertical"  
         )
     
     # Page selection logic

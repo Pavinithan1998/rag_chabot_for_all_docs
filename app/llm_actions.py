@@ -39,7 +39,7 @@ def get_image_description(image_bytes: bytes):
 
 def get_chat_chain(memory):
     prompt_template = """you are an AI assistant designed to help humans regarding any questions they have about documents.
-    You are having a conversation with a Human. Strictly give answers related to the context of the document but you can use your knowledge if you think necessary.
+    You are having a conversation with a Human. Strictly give answers related to the context of the document but you can use your knowledge if you think necessary. You can response to greetings and feedbacks as well.
     
     Here is your conversation history with same Human:
     {chat_history}
@@ -59,13 +59,11 @@ def get_chat_chain(memory):
     chain_type_kwargs = {"prompt": PROMPT}
     vectorstore = load_vectorstore()
     retriever=vectorstore.as_retriever(search_type="similarity", search_kwargs={"k":5})
-    print("Retriever loaded successfully.", retriever)
     retrieved_docs = retriever.get_relevant_documents("what this document about?")
     if not retrieved_docs:
         print("No relevant documents found.")
     else:
         for doc in retrieved_docs:
-            print("Document Content:", doc.page_content)
             print("Metadata:", doc.metadata)
 
     chat_chain = ConversationalRetrievalChain.from_llm(llm=chat_streaming_model, 
