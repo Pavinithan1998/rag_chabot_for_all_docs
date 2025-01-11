@@ -7,7 +7,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferMemory
 from markup import doc_qa_tools_demo
-from pinecone_actions import ingest_documents
+from pinecone_actions import ingest_documents, clear_index
 from llm_actions import get_chat_chain
 from process_docs import (
     process_pdf,
@@ -66,6 +66,16 @@ def tab2():
             st.success("Files uploaded successfully!")
     else:
         st.info("Upload files to get started.")
+
+     # Add a "Clear Pinecone Index" button
+    st.subheader("Index Management")
+    if st.button("Clear Pinecone Index"):
+        with st.spinner("Clearing index..."):
+            success = clear_index()  # Call the function to clear the index
+            if success:
+                st.success("Index cleared successfully!")
+            else:
+                st.error("Index does not exist or could not be cleared.")   
 
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.callbacks.base import BaseCallbackHandler

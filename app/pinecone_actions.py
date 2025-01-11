@@ -17,6 +17,17 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not os.path.exists("docs"):
     os.makedirs("docs")
 
+def clear_index():
+    """Empties the Pinecone index by deleting all vectors, but keeps the index itself."""
+    try:
+        index = pinecone.Index(api_key=PINECONE_API_KEY, host=PINECONE_HOST)
+        index.delete(delete_all=True)  # Deletes all vectors but keeps the index
+        print("Index cleared successfully!")
+        return True
+    except Exception as e:
+        print(f"Error clearing index: {e}")
+        return False
+    
 def ingest_documents():
     """Ingest documents into local vector store."""
     try:
